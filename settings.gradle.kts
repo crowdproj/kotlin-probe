@@ -16,3 +16,7 @@ pluginManagement {
 includeBuild("crowdproj-plugins")
 include("crowdproj-eventmanager-common")
 include("crowdproj-eventmanager-default")
+
+include("crowdproj-eventconsumer-mock")
+
+include("crowdproj-logger-common")

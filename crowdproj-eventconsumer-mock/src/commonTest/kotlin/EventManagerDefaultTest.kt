@@ -12,7 +12,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class EventManagerCommonTest {
+class EventManagerDefaultTest {
     @Test
     fun test() = runTest {
         withContext(Dispatchers.Default) {

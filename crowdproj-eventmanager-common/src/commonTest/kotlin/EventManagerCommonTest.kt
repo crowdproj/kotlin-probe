@@ -33,12 +33,17 @@ class EventManagerCommonTest {
                     TestEvent2::class
                 )
             }
+
+            delay(100)
+
             eventManager.pub(TestEvent1("msg1"))
             eventManager.pub(TestEvent2("msg12"))
             eventManager.pub(TestEvent1("skip"))
             eventManager.pub(TestEvent2("skip2"))
             eventManager.pub(TestEvent1("msg2"))
             eventManager.pub(TestEvent2("msg22"))
+
+            delay(100)
 
             assertEquals(listOf("start", "msg1", "msg2"), events1)
             assertEquals(listOf("start2", "msg12", "msg22"), events2)
@@ -51,12 +56,15 @@ class EventManagerCommonTest {
     class TestEventManager : IEventManager {
         private val cctx = Dispatchers.Default + Job()
         private val scope = CoroutineScope(cctx)
-        private val subscriptions: MutableMap<KClass<out IEvent>, MutableList<IEventSubscription<IEvent>>> = mutableMapOf()
+        private val subscriptions: MutableMap<KClass<out IEvent>, MutableList<IEventSubscription<IEvent>>> =
+            mutableMapOf()
+
         override fun pub(event: IEvent) {
             scope.launch {
                 pubSusp(event)
             }
         }
+
         override fun pub(block: () -> IEvent) = pub(block())
         override suspend fun pubSusp(event: IEvent) {
             for ((c, ss) in subscriptions) {
@@ -77,11 +85,11 @@ class EventManagerCommonTest {
         }
     }
 
-    class TestEventSubscription<T: IEvent>(
+    class TestEventSubscription<T : IEvent>(
         override val title: String,
-        val blockStart: () -> Unit,
-        val blockFilter: (T) -> Boolean,
-        val blockCollect: (T) -> Unit,
+        val blockStart: suspend () -> Unit,
+        val blockFilter: suspend (T) -> Boolean,
+        val blockCollect: suspend (T) -> Unit,
     ) : IEventSubscription<T> {
         override suspend fun start() = blockStart()
         override suspend fun filter(event: T): Boolean = blockFilter(event)
